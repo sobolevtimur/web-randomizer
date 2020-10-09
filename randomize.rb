@@ -42,7 +42,7 @@ class WebRandomize
 
     contents.scan(/<div.*?class=(.*?)>/).uniq.each do |div|
       div.first.slice(/\"(.*)\"/, 1).strip.split(/\s+/).each do |el|
-        puts "\n\nProcessing div   = " + el + "\n\n"
+        puts "\n\nHTML Processing div: " + el + "\n\n"
 
         new_value = get_rand_string.strip
 
@@ -70,7 +70,9 @@ class WebRandomize
   end
 
   def color_shift(contents)
-    contents.gsub!(/#\w+/) do |pattern|
+
+    contents.gsub!(/#[0-9a-fA-F]+/) do |pattern|
+
       delta = pattern[1..2] == 'ff' ? -1 : 1
       pattern[1..2] = (pattern[1..2].hex + delta).to_s(16)
       pattern
