@@ -63,16 +63,16 @@ class WebRandomize
 
         css_array_update!(el, new_value)
       end
-
     end
 
     contents
   end
 
   def css_array_update!(old_value, new_value)
+    puts "\n\nCSS Processing div class from #{old_value} to #{new_value}\n\n"
+
     @сss_files_array.each do |el|
-      puts "\n\nCSS Processing file: #{el[:filename]}\n\n"
-      puts 'CSS Processing div class ' + old_value
+      puts "CSS Processing file: #{el[:filename]}\n"
       el[:contents].gsub!(/.\b#{old_value}\b/, '.' + new_value) # .inspect
     end
   end
@@ -83,14 +83,21 @@ class WebRandomize
   end
 
   def color_shift(contents)
-
     contents.gsub!(/#[0-9a-fA-F]+/) do |pattern|
+      puts "Color processing old_value: #{pattern}\n"
 
       delta = pattern[1..2] == 'ff' ? -1 : 1
-      pattern[1..2] = (pattern[1..2].hex + delta).to_s(16)
+
+      pattern[1..2] = to_hex(pattern[1..2].hex + delta)
+
+      puts "Color processing new value: #{pattern}\n"
+
       pattern
     end
     contents
   end
-end
 
+  def to_hex(int)
+    int < 16 ? '0' + int.to_s(16) : int.to_s(16)
+  end
+end
