@@ -1,19 +1,32 @@
 class WebRandomize
+  require 'yaml'
+
   def initialize
-    @dir_list = %w[_layouts _includes]
-    @css_dir = 'assets/css'
+    if File.file?('randomize.yml')
+      config = YAML.load_file('randomize.yml')
+
+      @html_dir_list = config['html_dir']
+      @css_dir_list = config['css_dir']
+
+    else
+      @html_dir_list = %w[_layouts _includes]
+      @css_dir_list = %w[assets/css _sass]
+    end
+
     @сss_files_array = []
 
-    Dir.foreach(@css_dir) do |css_filename|
-      next if css_filename == '.' || css_filename == '..'
+    @css_dir_list.each do |dir_item|
+      Dir.foreach(dir_item) do |css_filename|
+        next if css_filename == '.' || css_filename == '..'
 
-      @сss_files_array << ({ filename: "#{@css_dir}/#{css_filename}",
-                             contents: File.open("#{@css_dir}/#{css_filename}").read })
+        @сss_files_array << ({ filename: "#{dir_item}/#{css_filename}",
+                               contents: File.open("#{dir_item}/#{css_filename}").read })
+      end
     end
   end
 
   def execute
-    @dir_list.each do |dir_item|
+    @html_dir_list.each do |dir_item|
       Dir.foreach(dir_item) do |filename|
         next if filename == '.' || filename == '..'
 
