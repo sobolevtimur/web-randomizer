@@ -20,7 +20,6 @@ class WebRandomize
         puts "Processing #{dir_item}/#{filename}"
 
         output = randomize_div(open("#{dir_item}/#{filename}").read)
-
         File.open("#{dir_item}/#{filename}", 'w') { |f| f.write(output) }
       end
     end
@@ -41,12 +40,17 @@ class WebRandomize
   def randomize_div(contents)
     contents.gsub!(/<div>/, "<div class=\"#{get_rand_string}\">")
 
-    contents.gsub!(/<div.*?class=.*?>/) do |pattern|
-      old_value = pattern.slice(/\"(.*)\"/, 1).strip
-      new_value = get_rand_string.strip
-      pattern = "<div class=\"#{new_value}\">"
-      css_array_update!(old_value, new_value)
-      pattern
+    contents.scan(/<div.*?class=(.*?)>/).uniq.each do |div|
+      div.first.slice(/\"(.*)\"/, 1).strip.split(/\s+/).each do |el|
+        puts "\n\nProcessing div   = " + el + "\n\n"
+
+        new_value = get_rand_string.strip
+
+        contents.gsub!(el, new_value)
+
+        css_array_update!(el, new_value)
+      end
+
     end
 
     contents
@@ -54,9 +58,9 @@ class WebRandomize
 
   def css_array_update!(old_value, new_value)
     @сss_files_array.each do |el|
+      puts "\n\nCSS Processing file: #{el[:filename]}\n\n"
       puts 'CSS Processing div class ' + old_value
-      puts "\n\nCSS Processing: #{el[:filename]}\n\n"
-      el[:contents].gsub!(/.\b#{old_value}\b/, '.' + new_value).inspect
+      el[:contents].gsub!(/.\b#{old_value}\b/, '.' + new_value) # .inspect
     end
   end
 
@@ -74,3 +78,4 @@ class WebRandomize
     contents
   end
 end
+
