@@ -37,8 +37,6 @@ class WebRandomize
       end
     end
 
-    # запись в css файлы
-
     @сss_files_array.each do |el|
       puts "\n\nUpdating #{el[:filename]}\n"
 

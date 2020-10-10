@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.description = 'Gem for randomizing div classes and color styles for static sites.'
   s.author      = 'Timur Sobolev'
   s.email       = 'timur.sobolev@gmail.com'
-  s.homepage    = 'https://github.com/TEFlash/web-randomizer'
+  s.homepage    = 'https://github.com/sobolevtimur/web-randomizer'
   s.license     = 'MIT'
   s.files       = `git ls-files`.split("\n")
   s.add_dependency('yaml')
