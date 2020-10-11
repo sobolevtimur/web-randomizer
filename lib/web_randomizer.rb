@@ -51,13 +51,19 @@ module WebRandomizer
 
           puts "Processing #{dir_item}/#{filename}"
 
-          output = File.open("#{dir_item}/#{filename}", &:read)
+          output = File.open("#{dir_item}/#{filename}") { |f| f.read }
+
 
           output.gsub!(/<div>/, "<div class=\"#{rand_string}\">")
 
           output.scan(/<div.*?class=(.*?)>/).uniq.each do |div|
             div.first.slice(/\"(.*)\"/, 1).strip.split(/\s+/).each do |el|
-              puts "\n\nHTML Processing div: " + el + "\n\n"
+              puts "\n\nHTML Searching non-div classes: " + el + "\n\n"
+
+              if found_in_non_div(el)
+                puts "\n\nFound in non-div tags. Skipping: " + el + "\n\n"
+                next
+              end
 
               new_value = rand_string.strip
               @html_dir_list.each do |inner_dir_item|
@@ -79,6 +85,24 @@ module WebRandomizer
           end
         end
       end
+    end
+
+    def found_in_non_div(el)
+      @html_dir_list.each do |dir_item|
+        Dir.foreach(dir_item) do |filename|
+          next if filename == '.' || filename == '..'
+
+          puts "Processing #{dir_item}/#{filename}"
+
+          output = File.open("#{dir_item}/#{filename}") { |f| f.read }
+
+
+          return true unless output.scan(/<(?!div).*?class.*?=.*?#{el}.*?>/).empty?
+
+        end
+      end
+
+      false
     end
 
     def css_array_update!(old_value, new_value)
