@@ -1,9 +1,11 @@
-$:.push File.expand_path("../lib", __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 Gem::Specification.new do |s|
   s.name        = 'web_randomizer'
-  s.version     = '0.1.0'
-  s.date        = '2020-10-10'
+  s.version     = '0.2.0'
+  s.date        = '2020-10-11'
   s.summary     = 'WebRandomizer - gem for randomizing div classes and color styles for static sites'
   s.description = 'Gem for randomizing div classes and color styles for static sites.'
   s.author      = 'Timur Sobolev'
