@@ -35,4 +35,3 @@ Usage example:
 
 ## License
 MIT License.
-`
