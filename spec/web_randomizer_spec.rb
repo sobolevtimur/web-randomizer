@@ -21,31 +21,36 @@ RSpec.describe 'WebRandomizer' do
   context 'with valid tags' do
     before do
       html1_str =
-        <<-'_layouts'
+        <<-'_LAYOUTS'
+          <div class="footer-widget">
+          <div class="footer_class">
           <div class="div1">
           <div class="div2">
-          <footer class="footer_class">
-        _layouts
+          <div id="text-4" class="after_id">
+          <div class="compound">
+        _LAYOUTS
 
       html2_str =
-        <<-'_includes'
+        <<-'_INCLUDES'
+          <footer class="footer-widget-title">
+          <footer class="footer_class">
           <div class="div2">
-          <div class="footer_class">
-        _includes
+          <div class="compound compound2">
+        _INCLUDES
 
       css_str =
-        <<-'css'
+        <<-'CSS'
             .div1 
             .div2 
             cite { color: #9B9b97; }
-        css
+        CSS
 
       sass_str =
-        <<-'sass'
+        <<-'SASS'
             .div2 
             .div3 
             a:hover { color: #ff805E; }
-        sass
+        SASS
 
       File.open('_layouts/test.html', 'w') { |file| file.write(html1_str) }
       File.open('_includes/test.html', 'w') { |file| file.write(html2_str) }
@@ -55,13 +60,19 @@ RSpec.describe 'WebRandomizer' do
       WebRandomizer.execute
 
       puts  "\n\nSPEC OUTPUT:\n\n"
-      puts  "\n_layouts:\n" + File.open('_layouts/test.html', 'r', &:read)
-      puts  "\n_includes:\n" + File.open('_includes/test.html', 'r', &:read)
-      puts  "\nassets: \n" + File.open('assets/css/test.css', 'r', &:read)
-      puts  "\n_sass:\n" + File.open('_sass/test.sass', 'r', &:read)
+      puts  "\n_layouts:\n\n#{html1_str}\n" + File.open('_layouts/test.html', 'r', &:read)
+      puts  "\n_includes:\n\n#{html2_str}\n" + File.open('_includes/test.html', 'r', &:read)
+      puts  "\nassets: \n\n#{css_str}\n" + File.open('assets/css/test.css', 'r', &:read)
+      puts  "\n_sass:\n\n#{sass_str}\n" + File.open('_sass/test.sass', 'r', &:read)
     end
 
-    it 'should randomize div tags' do
+
+    it 'shouldn`t match tags with equal substrings' do
+      scan_result = File.open('_layouts/test.html', 'r', &:read).scan(/.*?footer-widget.*?/)
+      expect(scan_result.empty?).to be true
+    end
+
+    it 'should change div tags' do
       scan_result = File.open('_layouts/test.html', 'r', &:read).scan(/.*?(?=div1|div2).*?/)
       expect(scan_result.empty?).to be true
     end
