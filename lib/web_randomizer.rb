@@ -36,7 +36,7 @@ module WebRandomizer
 
       @css_dir_list.each do |dir_item|
         Dir.foreach(dir_item) do |css_filename|
-          next if css_filename == '.' || css_filename == '..'
+          next if ['.', '..'].include?(css_filename)
 
           @сss_files_array << ({ filename: "#{dir_item}/#{css_filename}",
                                  contents: File.open("#{dir_item}/#{css_filename}").read })
@@ -47,42 +47,59 @@ module WebRandomizer
     def randomize_div!
       @html_dir_list.each do |dir_item|
         Dir.foreach(dir_item) do |filename|
-          next if filename == '.' || filename == '..'
+          next if ['.', '..'].include?(filename)
 
           puts "Processing #{dir_item}/#{filename}"
 
-          output = File.open("#{dir_item}/#{filename}") { |f| f.read }
+          output = File.open("#{dir_item}/#{filename}", &:read)
 
 
           output.gsub!(/<div>/, "<div class=\"#{rand_string}\">")
 
           output.scan(/<div.*?class=(.*?)>/).uniq.each do |div|
-            div.first.slice(/\"(.*)\"/, 1).strip.split(/\s+/).each do |el|
-              puts "\n\nHTML Searching non-div classes: " + el + "\n\n"
 
-              if found_in_non_div(el)
-                puts "\n\nFound in non-div tags. Skipping: " + el + "\n\n"
-                next
-              end
 
-              new_value = rand_string.strip
-              @html_dir_list.each do |inner_dir_item|
-                Dir.foreach(inner_dir_item) do |inner_filename|
-                  next if inner_filename == '.' || inner_filename == '..'
 
-                  puts "\n\nHTML Processing inner file: #{inner_dir_item}/" + inner_filename + "\n\n"
+          div.first.tr('"', '').strip.split(/\s+/).each do |el|
 
-                  contents = nil
 
-                  File.open("#{inner_dir_item}/#{inner_filename}", 'r') { |f| contents = f.read }
+            if found_in_non_div(el)
+              puts "\n\nFound in non-div tags. Skipping: " + el + "\n\n"
+              next
+            end
 
-                  File.open("#{inner_dir_item}/#{inner_filename}", 'w+') { |fw| fw.write(contents.gsub(el, new_value)) }
-                end
-              end
+            new_value = rand_string.strip
 
-              css_array_update!(el, new_value)
+            html_files_update(el, new_value)
+
+            css_array_update!(el, new_value)
+
             end
           end
+        end
+      end
+    end
+
+
+
+    def html_files_update(old_value, new_value)
+
+      @html_dir_list.each do |inner_dir_item|
+        Dir.foreach(inner_dir_item) do |inner_filename|
+          next if ['.', '..'].include?(inner_filename)
+
+          puts "\n\nHTML Processing inner file: #{inner_dir_item}/" + inner_filename + "\n\n"
+
+          contents = nil
+
+          File.open("#{inner_dir_item}/#{inner_filename}", 'r') {|f| contents = f.read}
+
+          #TODO change reg
+
+          File.open("#{inner_dir_item}/#{inner_filename}", 'w+') do |fw|
+            fw.write(contents.gsub(/[\"\s]?(#{old_value})[\"\s]?/, new_value))
+          end
+
         end
       end
     end
@@ -90,13 +107,15 @@ module WebRandomizer
     def found_in_non_div(el)
       @html_dir_list.each do |dir_item|
         Dir.foreach(dir_item) do |filename|
-          next if filename == '.' || filename == '..'
+          next if ['.', '..'].include?(filename)
 
           puts "Processing #{dir_item}/#{filename}"
 
-          output = File.open("#{dir_item}/#{filename}") { |f| f.read }
+          output = File.open("#{dir_item}/#{filename}", &:read)
 
 
+
+          #TODO change reg
           return true unless output.scan(/<(?!div).*?class.*?=.*?#{el}.*?>/).empty?
 
         end
