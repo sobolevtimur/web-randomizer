@@ -97,7 +97,7 @@ module WebRandomizer
           #TODO change reg
 
           File.open("#{inner_dir_item}/#{inner_filename}", 'w+') do |fw|
-            fw.write(contents.gsub(/[\"\s]?(#{old_value})[\"\s]?/, new_value))
+            fw.write(contents.gsub(/\b#{old_value}\b/, new_value))
           end
 
         end
