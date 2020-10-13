@@ -54,6 +54,7 @@ module WebRandomizer
           output = File.open("#{dir_item}/#{filename}", &:read)
 
           output.gsub!(/<div>/, "<div.*?class.*?=\"#{rand_string}\">")
+          output.gsub!(/<div>/, "<div class=\"#{rand_string}\">")
 
           output.scan(/<div.*?class.*?=(.*?)>/).uniq.each do |div|
             div.first.tr('"', '').strip.split(/\s+/).each do |el|
