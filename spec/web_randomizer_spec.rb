@@ -22,34 +22,52 @@ RSpec.describe 'WebRandomizer' do
     before do
       html1_str =
         <<-'_LAYOUTS'
-          <div class="footer-widget">
-          <div class="footer_class">
-          <div class="div1">
-          <div class="div2">
-          <div id="text-4" class="after_id">
-          <div class="compound">
+        
+<div class="mh-footer-widget">
+        
+<div class="div1">
+
+<footer class="footer-widget-title">
+
+<div class="footer-widget">
+<div class="dsada  footer-widget">
+
+
+<div class="footer-widget-1">
+
+<div class="compound compound2">
+
+<div class="footer_class">
+
+<div class="div2">
+<div id="text-4" class="after_id">
         _LAYOUTS
 
       html2_str =
         <<-'_INCLUDES'
-          <footer class="footer-widget-title">
-          <footer class="footer_class">
-          <div class="div2">
-          <div class="compound compound2">
+<footer class="footer-widget-title">
+
+<div class="compound">
+
+<footer class="footer_class">
+<div class="div2">
         _INCLUDES
 
       css_str =
         <<-'CSS'
-            .div1 
-            .div2 
-            cite { color: #9B9b97; }
+.mh-footer-widget.widget_archive li
+.comment-edit-link .div1 { margin-right: 15px; }
+.div1 .comment-edit-link { margin-right: 15px; }
+
+.div2 
+ cite { color: #9B9b97; }
         CSS
 
       sass_str =
         <<-'SASS'
-            .div2 
-            .div3 
-            a:hover { color: #ff805E; }
+.div2 
+.div3 
+a:hover { color: #ff805E; }
         SASS
 
       File.open('_layouts/test.html', 'w') { |file| file.write(html1_str) }
@@ -68,7 +86,7 @@ RSpec.describe 'WebRandomizer' do
 
 
     it 'shouldn`t match tags with equal substrings' do
-      scan_result = File.open('_layouts/test.html', 'r', &:read).scan(/.*?footer-widget.*?/)
+      scan_result = File.open('_layouts/test.html', 'r', &:read).scan(/.*?[^-][\b]footer-widget[\b][^-].*?/)
       expect(scan_result.empty?).to be true
     end
 
