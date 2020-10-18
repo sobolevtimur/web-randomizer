@@ -18,7 +18,7 @@ module WebRandomizer
       end
     end
 
-      private
+    private
 
     def initialize!
       if File.file?('randomize.yml')
@@ -53,13 +53,18 @@ module WebRandomizer
 
           output = File.open("#{dir_item}/#{filename}", &:read)
 
-          output.gsub!(/<div>/, "<div.*?class.*?=\"#{rand_string}\">")
           output.gsub!(/<div>/, "<div class=\"#{rand_string}\">")
 
           output.scan(/<div.*?class.*?=(.*?)>/).uniq.each do |div|
             div.first.tr('"', '').strip.split(/\s+/).each do |el|
               if found_in_non_div(el)
                 puts "\n\nFound in non-div tags. Skipping: " + el + "\n\n"
+
+                next
+              end
+
+              if found_class_wilcard(el)
+                puts "\n\nFound in css class wildcard. Skipping: " + el + "\n\n"
 
                 next
               end
@@ -75,6 +80,16 @@ module WebRandomizer
       end
     end
 
+    def found_class_wilcard(el)
+      @сss_files_array.each do |file|
+        scan_result = file[:contents].scan(/\[class.?='(.*?)'/) # .inspect
+
+        return true if !scan_result.empty? && el.include?(scan_result.first.first)
+      end
+
+      false
+    end
+
     def html_files_update(old_value, new_value)
       @html_dir_list.each do |inner_dir_item|
         Dir.foreach(inner_dir_item) do |inner_filename|
@@ -87,7 +102,7 @@ module WebRandomizer
           File.open("#{inner_dir_item}/#{inner_filename}", 'r') { |f| contents = f.read }
 
           File.open("#{inner_dir_item}/#{inner_filename}", 'w+') do |fw|
-            scan_result = contents.scan(/<div.*?[^-]\b#{old_value}\b[^-].*?>/).each do |el|
+            contents.scan(/<div.*?[^-]\b#{old_value}\b[^-].*?>/).each do |el|
               replaced_el = el.gsub(/\b#{old_value}\b/, new_value)
 
               contents.gsub!(el, replaced_el)
@@ -109,43 +124,44 @@ module WebRandomizer
           return true unless output.scan(/<(?!div).*?class.*?=.*?[^-]\b#{el}\b[^-].*?>/).empty?
         end
       end
+
+      false
     end
 
-    false
+    def css_array_update!(old_value, new_value)
+      puts "\n\nCSS Processing div class from #{old_value} to #{new_value}\n\n"
+
+      @сss_files_array.each do |el|
+        puts "CSS Processing file: #{el[:filename]}\n"
+
+        el[:contents].gsub!(/\.\b#{old_value}\b/, '.' + new_value) # .inspect
+      end
     end
 
-  def css_array_update!(old_value, new_value)
-    puts "\n\nCSS Processing div class from #{old_value} to #{new_value}\n\n"
-
-    @сss_files_array.each do |el|
-      puts "CSS Processing file: #{el[:filename]}\n"
-
-      el[:contents].gsub!(/\.\b#{old_value}\b/, '.' + new_value) # .inspect
+    def rand_string
+      o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
+      (0...16).map { o[rand(o.length)] }.join
     end
-  end
 
-  def rand_string
-    o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
-    (0...16).map { o[rand(o.length)] }.join
-  end
+    def color_shift(contents)
+      contents.gsub!(/#[0-9a-fA-F]+/) do |pattern|
+        puts "Color processing old_value: #{pattern}\n"
 
-  def color_shift(contents)
-    contents.gsub!(/#[0-9a-fA-F]+/) do |pattern|
 
-      delta = pattern[1..2].downcase == 'ff' ? -1 : 1
+        delta = pattern[pattern.size - 2..pattern.size - 1] == '00' ? 1 : -1
+
+        pattern[pattern.size - 2..pattern.size - 1] = to_hex(pattern[pattern.size - 2..pattern.size - 1].hex + delta)
 
         puts "Color processing new value: #{pattern}\n"
-      pattern[1..2] = to_hex(pattern[1..2].hex + delta)
 
 
-      pattern
+        pattern
+      end
+      contents
     end
-    contents
+
+    def to_hex(int)
+      int < 16 ? '0' + int.to_s(16) : int.to_s(16)
+    end
   end
-
-  def to_hex(int)
-    int < 16 ? '0' + int.to_s(16) : int.to_s(16)
-  end
-
-
 end
